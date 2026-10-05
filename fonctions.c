@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "fonctions.h"
 #include <time.h>
+#include <string.h>
+
+#include "fonctions.h"
 
 void generateMaze(maze_t maze){
     int compteur = 1;
@@ -143,6 +145,36 @@ void displayMaze(maze_t maze){
     }
 }
 
+char** replaceMaze(maze_t maze){
+    char** newMaze;
+    newMaze = malloc(maze.hauteur * sizeof(int *));
+    for (int i = 0; i < maze.hauteur; i++) {
+        newMaze[i] = malloc(maze.largeur * sizeof(int));
+    }
+    for (int i = 0; i < maze.hauteur; i++){
+        for (int j = 0; j < maze.largeur; j++){
+            switch (maze.labyrinthe[i][j])
+            {
+            case 0:
+                newMaze[i][j] = '#';
+                break;
+            case -1:
+                newMaze[i][j] = 'o';
+                break;
+            case -2:
+                newMaze[i][j] = '-';
+                break;
+            default:
+                newMaze[i][j] = ' ';
+                break;
+            }
+        }
+        newMaze[i][maze.largeur] = '\0';
+    }
+    return newMaze;
+    free(newMaze);
+}
+
 void menu(){
     int choix =0;
     printf("Bonjour, que voulez-vous faire:\n"
@@ -183,5 +215,26 @@ void createMaze(){
     maze_t newMaze = {coordonnees[0], coordonnees[1], laby, name};
     generateMaze(newMaze);
     mazePath(newMaze);
-    displayMaze(newMaze);
+    fileWrite(newMaze, replaceMaze(newMaze));
+    free(newMaze.labyrinthe);
+}
+
+void fileWrite(maze_t maze ,char** newMaze){
+    char chemin[150];
+
+    snprintf(chemin, sizeof(chemin), "Labyrinthes/%s.cfg", maze.nom);
+
+    FILE *newFile = fopen(chemin, "w");
+
+    if (newFile == NULL){
+        printf("Impossible d'ouvrir le fichier\n");
+        return;
+    }
+
+    for (int i = 0; i < maze.hauteur; i++){
+        for (int j = 0; j < maze.largeur; j++){
+            fprintf(newFile, "%c", newMaze[i][j]);
+        }
+        fprintf(newFile, "\n");
+    }
 }

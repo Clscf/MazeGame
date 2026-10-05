@@ -15,3 +15,5 @@ void generateMaze(maze_t maze);
 void mazePath(maze_t maze);
 void menu();
 void createMaze();
+void fileWrite(maze_t maze, char** newMaze);
+char** replaceMaze(maze_t maze);
