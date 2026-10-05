@@ -6,9 +6,6 @@
 
 int main(){
     srand(time(NULL));
-    int maze[HAUTEUR][LARGEUR];
-    generateMaze(maze);
-    mazePath(maze);
-    displayMaze(maze);
+    createMaze();
     return 0;
 }
