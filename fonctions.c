@@ -7,7 +7,7 @@ void generateMaze(int maze[HAUTEUR][LARGEUR]){
     int compteur = 1;
     for (int i = 0; i < HAUTEUR; i++){
         for (int j = 0; j < LARGEUR; j++){
-            if (j%2 == 0 && (i != 0 || i != HAUTEUR-1) && (i%2 != 0)){
+            if (j%2 == 0 && (i != 0 && i != HAUTEUR-1) && (i%2 != 0)){
                 maze[i][j] = 0;
             }
             else if (i == 0 || i == HAUTEUR-1 || i%2 == 0){
@@ -24,48 +24,96 @@ void generateMaze(int maze[HAUTEUR][LARGEUR]){
 }
 
 void mazePath(int maze[HAUTEUR][LARGEUR]){
-    int fini = 1;
-    int x, y;
-    int value[4];
-    while (fini != 0){
-        fini = 0;
-        do{
-            x = (rand()%(HAUTEUR-2))+1;
-            y = (rand()%(LARGEUR-2))+1;
-        }while (maze[x][y] != 0 && maze[x-1][y] == maze[x+1][y] && maze[x][y-1] == maze[x][y+1]);
+    int regions = 0;
 
-        value[0] = maze[x-1][y];
-        value[1] = maze[x+1][y];
-        value[2] = maze[x][y-1];
-        value[3] = maze[x][y+1];
-        
-        if (maze[x-1][y] != 0){
-            maze[x][y] = maze[x-1][y];
-        }
-        else if(maze[x+1][y] != 0){
-            maze[x][y] = maze[x+1][y];
-        }
-        else if(maze[x][y-1] != 0){
-            maze[x][y] = maze[x][y-1];
-        }
-        else if(maze[x][y+1] != 0){
-            maze[x][y] = maze[x][y+1];
-        }
-        int rempli = maze[1][1];
-        for (int i = 0; i < HAUTEUR; i++){
-            for (int j = 0; j < LARGEUR; j++){
-                if ((maze[i][j] != maze[x][y]) && (maze[i][j] == value[0] || maze[i][j] == value[1] || maze[i][j] == value[2] || maze[i][j] == value[3])){
-                    maze[i][j] = maze[x][y];
-                }
-                if (j%2 == 1 && (i != 0 || i != HAUTEUR-1) && (i%2 != 0)){
-                    if (maze[i][j] != rempli){
-                        fini++;
-                    }
-                }
+    for (int i = 1; i < HAUTEUR - 1; i += 2){
+        for (int j = 1; j < LARGEUR - 1; j += 2){
+            if (maze[i][j] > 0){
+                regions++;
             }
         }
     }
-    
+
+    while (regions > 1){
+        int mursValides = 0;
+
+        for (int i = 1; i < HAUTEUR - 1; i++){
+            for (int j = 1; j < LARGEUR - 1; j++){
+                int vertical = 0;
+                int horizontal = 0;
+                if (maze[i][j] == 0 &&
+                    maze[i - 1][j] > 0 && maze[i + 1][j] > 0 &&
+                    maze[i - 1][j] != maze[i + 1][j]){
+                        vertical = 1;
+                    }
+                if (maze[i][j] == 0 &&
+                    maze[i][j - 1] > 0 && maze[i][j + 1] > 0 &&
+                    maze[i][j - 1] != maze[i][j + 1]){
+                        horizontal = 1;
+                    }
+                if (vertical || horizontal){
+                    mursValides++;
+                }
+            }
+        }
+
+        if (mursValides == 0){
+            break;
+        }
+
+        int choix = rand() % mursValides;
+        int x = -1;
+        int y = -1;
+
+        for (int i = 1; i < HAUTEUR - 1 && x == -1; i++){
+            for (int j = 1; j < LARGEUR - 1; j++){
+                int vertical = 0;
+                int horizontal = 0;
+                if (maze[i][j] == 0 &&
+                    maze[i - 1][j] > 0 && maze[i + 1][j] > 0 &&
+                    maze[i - 1][j] != maze[i + 1][j]){
+                        vertical = 1;
+                    }
+                if (maze[i][j] == 0 &&
+                    maze[i][j - 1] > 0 && maze[i][j + 1] > 0 &&
+                    maze[i][j - 1] != maze[i][j + 1]){
+                        horizontal = 1;
+                    }
+                if (vertical || horizontal){
+                    if (choix == 0){
+                        x = i;
+                        y = j;
+                        break;
+                    }
+                    choix--;
+                }
+            }
+        }
+
+        int nouvelleRegion;
+        int ancienneRegion;
+
+        if (maze[x - 1][y] > 0){
+            nouvelleRegion = maze[x - 1][y];
+            ancienneRegion = maze[x + 1][y];
+        }
+        else{
+            nouvelleRegion = maze[x][y - 1];
+            ancienneRegion = maze[x][y + 1];
+        }
+
+        maze[x][y] = nouvelleRegion;
+
+        for (int i = 1; i < HAUTEUR - 1; i += 2){
+            for (int j = 1; j < LARGEUR - 1; j += 2){
+                if (maze[i][j] == ancienneRegion){
+                    maze[i][j] = nouvelleRegion;
+                }
+            }
+        }
+
+        regions--;
+    }
 }
 
 void displayMaze(int maze[HAUTEUR][LARGEUR]){
@@ -83,7 +131,8 @@ void displayMaze(int maze[HAUTEUR][LARGEUR]){
                 printf("-");
                 break;
             default:
-                printf("%d", maze[i][j]);
+                //printf("%d", maze[i][j]);
+                printf(" ");
                 break;
             }
         }
