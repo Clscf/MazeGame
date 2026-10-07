@@ -135,6 +135,15 @@ void displayMaze(maze_t maze){
             case -2:
                 printf("-");
                 break;
+            case '#':
+                printf("#");
+                break;
+            case 'o':
+                printf("o");
+                break;
+            case '-':
+                printf("-");
+                break;
             default:
                 //printf("%d", maze.labyrinthe[i][j]);
                 printf(" ");
@@ -175,7 +184,7 @@ char** replaceMaze(maze_t maze){
     free(newMaze);
 }
 
-void menu(){
+int menu(){
     int choix =0;
     printf("Bonjour, que voulez-vous faire:\n"
     "- 1: Créer un labyrinthe\n"
@@ -187,9 +196,11 @@ void menu(){
         int c;
         while ((c = getchar()) != '\n' && c != EOF){};
     }while (choix < 1 || choix > 4);
+    
+    return choix;
 }
 
-void createMaze(){
+maze_t createMaze(){
     int coordonnees[2];
     char name[100];
     do {
@@ -199,13 +210,13 @@ void createMaze(){
         while ((c = getchar()) != '\n' && c != EOF) {
         }
     } while (name[0] == '\0');
-    printf("Veuillez saisir la hauteur puis la largeur du labyrinthe (minimum 3*3):\n");
+    printf("Veuillez saisir la hauteur puis la largeur du labyrinthe (minimum 3*3), ces coordonnées doivent être impair:\n");
     for (int i = 0; i < 2; i++){
         do{
             scanf("%d", &coordonnees[i]);
             int c;
             while ((c = getchar()) != '\n' && c != EOF){};
-        }while (coordonnees[i] < 3);
+        }while (coordonnees[i] < 3 || (coordonnees[i]%2) == 0);
     }
     int **laby = NULL;
     laby = malloc(coordonnees[0] * sizeof(int *));
@@ -216,7 +227,7 @@ void createMaze(){
     generateMaze(newMaze);
     mazePath(newMaze);
     fileWrite(newMaze, replaceMaze(newMaze));
-    free(newMaze.labyrinthe);
+    return newMaze;
 }
 
 void fileWrite(maze_t maze ,char** newMaze){
@@ -237,4 +248,164 @@ void fileWrite(maze_t maze ,char** newMaze){
         }
         fprintf(newFile, "\n");
     }
+    fclose(newFile);
+}
+
+maze_t loadMaze(){
+    char name[100];
+    char chemin[150];
+    maze_t maze = {0, 0, NULL, NULL};
+
+    do {
+        printf("Saisissez le nom du labyrinthe\n");
+        scanf("%99s", name);
+        int c;
+        while ((c = getchar()) != '\n' && c != EOF) {
+        }
+    } while (name[0] == '\0');
+
+    snprintf(chemin, sizeof chemin, "Labyrinthes/%s.cfg", name);
+    FILE *file = fopen(chemin, "r");
+    if (file == NULL) {
+        printf("Le fichier n'existe pas\n");
+        return maze;
+    }
+
+    int hauteur = 0;
+    int largeur = 0;
+    int largeurLigne = 0;
+    int caractere;
+
+    while ((caractere = fgetc(file)) != EOF) {
+        if (caractere == '\n') {
+            if (largeurLigne > largeur) {
+                largeur = largeurLigne;
+            }
+            hauteur++;
+            largeurLigne = 0;
+        } else if (caractere != '\r') {
+            largeurLigne++;
+        }
+    }
+
+    if (largeurLigne > 0) {
+        if (largeurLigne > largeur) {
+            largeur = largeurLigne;
+        }
+        hauteur++;
+    }
+
+    if (hauteur == 0 || largeur == 0) {
+        fclose(file);
+        return maze;
+    }
+
+    maze.hauteur = hauteur;
+    maze.largeur = largeur;
+    maze.labyrinthe = malloc((size_t) hauteur * sizeof *maze.labyrinthe);
+    if (maze.labyrinthe == NULL) {
+        fclose(file);
+        maze.hauteur = 0;
+        maze.largeur = 0;
+        return maze;
+    }
+
+    for (int i = 0; i < hauteur; i++) {
+        maze.labyrinthe[i] = malloc((size_t) largeur * sizeof *maze.labyrinthe[i]);
+        if (maze.labyrinthe[i] == NULL) {
+            for (int ligne = 0; ligne < i; ligne++) {
+                free(maze.labyrinthe[ligne]);
+            }
+            free(maze.labyrinthe);
+            fclose(file);
+            maze.labyrinthe = NULL;
+            maze.hauteur = 0;
+            maze.largeur = 0;
+            return maze;
+        }
+    }
+
+    rewind(file);
+    int i = 0;
+    int j = 0;
+    while ((caractere = fgetc(file)) != EOF && i < hauteur) {
+        if (caractere == '\n') {
+            i++;
+            j = 0;
+        } else if (caractere != '\r' && j < largeur) {
+            maze.labyrinthe[i][j] = caractere;
+            j++;
+        }
+    }
+
+    maze.nom = malloc(strlen(name) + 1);
+    if (maze.nom != NULL) {
+        strcpy(maze.nom, name);
+    }
+
+    fclose(file);
+    return maze;
+}
+
+void game(maze_t maze){
+    char move = '\0';
+    int win = -1;
+    displayMaze(maze);
+    do {
+        scanf("%c", &move);
+        win = movement(move, maze);
+    } while (win != 1);
+    displayMaze(maze);
+}
+
+int movement(char move, maze_t maze){
+    displayMaze(maze);
+    int player[2];
+    for (int i = 0; i < maze.hauteur; i++){
+        for (int j = 0; j < maze.largeur; j++){
+            if (maze.labyrinthe[i][j] == 'o'){
+                player[0] = i;
+                player[1] = j; 
+            }
+        }
+    }
+    switch (move)
+    {
+    case 'z':
+        if (maze.labyrinthe[player[0]-1][player[1]] == '#' || player[0]-1 < 0){
+            return -1;
+        }
+        maze.labyrinthe[player[0]-1][player[1]] = 'o';
+        maze.labyrinthe[player[0]][player[1]] = ' ';
+        break;
+    case 'q':
+        if (maze.labyrinthe[player[0]][player[1]-1] == '#'){
+            return -1;
+        }
+        maze.labyrinthe[player[0]][player[1]-1] = 'o';
+        maze.labyrinthe[player[0]][player[1]] = ' ';
+        break;
+    case 'd':
+        if (maze.labyrinthe[player[0]][player[1]+1] == '#'){
+            return -1;
+        }
+        maze.labyrinthe[player[0]][player[1]+1] = 'o';
+        maze.labyrinthe[player[0]][player[1]] = ' ';
+        break;
+    case 's':
+        if (maze.labyrinthe[player[0]+1][player[1]] == '#' || player[0]+1 > maze.hauteur){
+            return -1;
+        }
+        else if (maze.labyrinthe[player[0]+1][player[1]] == '-'){
+            maze.labyrinthe[player[0]+1][player[1]] = 'o';
+            maze.labyrinthe[player[0]][player[1]] = ' ';
+            return 1;
+        }
+        maze.labyrinthe[player[0]+1][player[1]] = 'o';
+        maze.labyrinthe[player[0]][player[1]] = ' ';
+        break;
+    default:
+        return -1;
+    }
+    return 0;
 }
