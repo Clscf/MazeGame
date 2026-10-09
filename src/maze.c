@@ -44,6 +44,7 @@ maze_t *createMaze(void){
 
     generateMaze(newMaze);
     mazePath(newMaze);
+    generateItems(newMaze);
     fileWrite(newMaze, replaceMaze(newMaze));
     return newMaze;
 }

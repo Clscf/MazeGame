@@ -22,6 +22,18 @@ void displayMaze(const maze_t *maze){
             case '-':
                 printf("-");
                 break;
+            case -3:
+            case '@':
+                printf("@");
+                break;
+            case -4:
+            case '?':
+                printf("?");
+                break;
+            case -5:
+            case 'X':
+                printf("X");
+                break;
             default:
                 printf(" ");
                 break;
@@ -37,12 +49,13 @@ int menu(void){
     "- 1: Créer un labyrinthe\n"
     "- 2: Charger un labyrinthe\n"
     "- 3: Jouer\n"
-    "- 4: Quitter\n");
+    "- 4: Afficher les scores\n"
+    "- 5: Quitter\n");
     do{
         scanf("%d", &choix);
         int c;
         while ((c = getchar()) != '\n' && c != EOF){};
-    }while (choix < 1 || choix > 4);
+    }while (choix < 1 || choix > 5);
     
     return choix;
 }

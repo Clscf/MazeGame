@@ -33,6 +33,15 @@ char **replaceMaze(const maze_t *maze){
             case -2:
                 newMaze[i][j] = '-';
                 break;
+            case -3:
+                newMaze[i][j] = '@';
+                break;
+            case -4:
+                newMaze[i][j] = '?';
+                break;
+            case -5:
+                newMaze[i][j] = 'X';
+                break;
             default:
                 newMaze[i][j] = ' ';
                 break;
@@ -163,4 +172,25 @@ void fileWrite(const maze_t *maze, char **newMaze){
     }
     fclose(newFile);
     freeMazeText(newMaze, maze->hauteur);
+}
+
+void showScores(const maze_t *maze){
+    char chemin[150];
+    char pseudo[50];
+    int score;
+
+    snprintf(chemin, sizeof chemin, "scores/%s.score", maze->nom);
+    FILE *file = fopen(chemin, "r");
+    if (file == NULL){
+        printf("Aucun score enregistré pour ce labyrinthe.\n");
+        return;
+    }
+
+    printf("Classement de %s :\n", maze->nom);
+    int position = 1;
+    while (position <= 10 && fscanf(file, "%49s %d", pseudo, &score) == 2){
+        printf("%d. %s : %d points\n", position, pseudo, score);
+        position++;
+    }
+    fclose(file);
 }

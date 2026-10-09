@@ -118,3 +118,33 @@ void mazePath(maze_t *maze){
         regions--;
     }
 }
+
+void generateItems(maze_t *maze){
+    int freecase = 0;
+    for (int i = 1; i < maze->hauteur-1; i++){
+        for (int j = 1; j <maze->largeur-1; j++){
+            freecase++;
+        }
+    }
+    int x1, y1, x2, y2, x3, y3;
+    for (int k = 0; k < freecase%20+1; k++){
+        do
+        {
+            x1 = (rand()%maze->hauteur-1) + 1;
+            y1 = (rand()%maze->largeur-1) + 1;
+        } while (maze->labyrinthe[x1][y1] < 1);
+        maze->labyrinthe[x1][y1] = -5;
+        do
+        {
+            x2 = (rand()%maze->hauteur-1) + 1;
+            y2 = (rand()%maze->largeur-1) + 1;
+        } while (maze->labyrinthe[x2][y2] < 1);
+        maze->labyrinthe[x2][y2] = -4;
+    }
+    do
+    {
+        x3 = (rand()%maze->hauteur-1) + 1;
+        y3 = (rand()%maze->largeur-1) + 1;
+    } while (maze->labyrinthe[x3][y3] < 1);
+    maze->labyrinthe[x1][y1] = -3;
+}
