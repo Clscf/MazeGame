@@ -4,7 +4,7 @@
 #include "maze.h"
 #include "affichage.h"
 
-#define MOVE 2
+#define MOVE 5
 #define TRAP 100
 #define TREASURE 100
 #define SCORE_COUNT 10

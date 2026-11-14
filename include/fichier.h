@@ -5,6 +5,7 @@
 #include "jeu.h"
 
 char **replaceMaze(const maze_t *maze);
+void listMaze(void);
 maze_t *loadMaze(void);
 void fileWrite(const maze_t *maze, char **newMaze);
 void showScores(const maze_t *maze);

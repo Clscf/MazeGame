@@ -71,7 +71,8 @@ int movement(char move, maze_t *maze, stats_t *stats){
     int player[2] = {0, 1};
     for (int i = 0; i < maze->hauteur; i++){
         for (int j = 0; j < maze->largeur; j++){
-            if (maze->labyrinthe[i][j] == 'o'){
+            if (maze->labyrinthe[i][j] == 'o' ||
+                maze->labyrinthe[i][j] == -1){
                 player[0] = i;
                 player[1] = j; 
             }
@@ -84,14 +85,18 @@ int movement(char move, maze_t *maze, stats_t *stats){
             stats->score = stats->score - MOVE;
             switch (maze->labyrinthe[player[0]-1][player[1]])
             {
+            case 0:
             case '#':
                 return -1;
+            case -3:
             case '@':
                 stats->key = 1;
                 break;
+            case -5:
             case 'X':
                 stats->score = stats->score - TRAP;
                 break;
+            case -4:
             case '?':
                 stats->score = stats->score + TREASURE;
                 break;
@@ -107,14 +112,18 @@ int movement(char move, maze_t *maze, stats_t *stats){
             stats->score = stats->score - MOVE;
             switch (maze->labyrinthe[player[0]][player[1-1]])
             {
+            case 0:
             case '#':
                 return -1;
+            case -3:
             case '@':
                 stats->key = 1;
                 break;
+            case -5:
             case 'X':
                 stats->score = stats->score - TRAP;
                 break;
+            case -4:
             case '?':
                 stats->score = stats->score + TREASURE;
                 break;
@@ -130,14 +139,18 @@ int movement(char move, maze_t *maze, stats_t *stats){
             stats->score = stats->score - MOVE;
             switch (maze->labyrinthe[player[0]][player[1]+1])
             {
+            case 0:
             case '#':
                 return -1;
+            case -3:
             case '@':
                 stats->key = 1;
                 break;
+            case -5:
             case 'X':
                 stats->score = stats->score - TRAP;
                 break;
+            case -4:
             case '?':
                 stats->score = stats->score + TREASURE;
                 break;
@@ -153,17 +166,22 @@ int movement(char move, maze_t *maze, stats_t *stats){
             stats->score = stats->score - MOVE;
             switch (maze->labyrinthe[player[0]+1][player[1]])
             {
+            case 0:
             case '#':
                 return -1;
+            case -3:
             case '@':
                 stats->key = 1;
                 break;
+            case -5:
             case 'X':
                 stats->score = stats->score - TRAP;
                 break;
+            case -4:
             case '?':
                 stats->score = stats->score + TREASURE;
                 break;
+            case -2:
             case '-':
                 if (stats->key == 1){
                     maze->labyrinthe[player[0]+1][player[1]] = 'o';
@@ -183,4 +201,3 @@ int movement(char move, maze_t *maze, stats_t *stats){
     }
     return 0;
 }
-

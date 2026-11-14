@@ -22,12 +22,12 @@ int main(void){
                 free(maze);
             }
             maze = createMaze();
-            displayMaze(maze);
             break;
         case 2:
             if (maze != NULL){
                 free(maze);
             }
+            listMaze();
             maze = loadMaze();
             displayMaze(maze);
             break;
@@ -48,8 +48,7 @@ int main(void){
             }
             break;
         case 5:
-            exit(-1);
-            break;
+            return 0;
         default:
             break;
         }

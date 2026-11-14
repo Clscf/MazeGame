@@ -127,7 +127,7 @@ void generateItems(maze_t *maze){
         }
     }
     int x1, y1, x2, y2, x3, y3;
-    for (int k = 0; k < freecase%20+1; k++){
+    for (int k = 0; k < freecase/20+1; k++){
         do
         {
             x1 = (rand()%maze->hauteur-1) + 1;
@@ -146,5 +146,5 @@ void generateItems(maze_t *maze){
         x3 = (rand()%maze->hauteur-1) + 1;
         y3 = (rand()%maze->largeur-1) + 1;
     } while (maze->labyrinthe[x3][y3] < 1);
-    maze->labyrinthe[x1][y1] = -3;
+    maze->labyrinthe[x3][y3] = -3;
 }

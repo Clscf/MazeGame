@@ -1,4 +1,5 @@
 #include "fichier.h"
+#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,6 +53,30 @@ char **replaceMaze(const maze_t *maze){
     return newMaze;
 }
 
+void listMaze(void){
+    DIR *directory = opendir("Labyrinthes");
+    if (directory == NULL){
+        printf("Impossible d'ouvrir le dossier des labyrinthes\n");
+        return;
+    }
+
+    struct dirent *entry;
+    int count = 0;
+    printf("Labyrinthes disponibles :\n");
+    while ((entry = readdir(directory)) != NULL){
+        const char *extension = strrchr(entry->d_name, '.');
+        if (extension != NULL && strcmp(extension, ".cfg") == 0){
+            printf("- %.*s\n", (int)(extension - entry->d_name), entry->d_name);
+            count++;
+        }
+    }
+    closedir(directory);
+
+    if (count == 0){
+        printf("Aucun labyrinthe disponible\n");
+    }
+}
+
 maze_t *loadMaze(void){
     char name[100];
     char chemin[150];
@@ -72,7 +97,8 @@ maze_t *loadMaze(void){
     FILE *file = fopen(chemin, "r");
     if (file == NULL) {
         printf("Le fichier n'existe pas\n");
-        return maze;
+        free(maze);
+        return loadMaze();
     }
 
     int hauteur = 0;
