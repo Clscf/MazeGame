@@ -7,6 +7,8 @@ struct maze
     int largeur;
     int **labyrinthe;
     char *nom;
+    struct monster *monstres;
+    int nbMonstres;
 };
 typedef struct maze maze_t;
 
@@ -19,5 +21,6 @@ typedef struct player player_y;
 
 
 maze_t *createMaze(void);
+void freeMaze(maze_t *maze);
 
 #endif

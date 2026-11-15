@@ -19,13 +19,13 @@ int main(void){
         {
         case 1:
             if (maze != NULL){
-                free(maze);
+                freeMaze(maze);
             }
             maze = createMaze();
             break;
         case 2:
             if (maze != NULL){
-                free(maze);
+                freeMaze(maze);
             }
             listMaze();
             maze = loadMaze();

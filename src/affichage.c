@@ -1,4 +1,5 @@
 #include "affichage.h"
+#include "monstre.h"
 #include <stdio.h>
 
 void displayMaze(const maze_t *maze){
@@ -8,6 +9,11 @@ void displayMaze(const maze_t *maze){
 
     for (int i = 0; i < maze->hauteur; i++){
         for (int j = 0; j < maze->largeur; j++){
+            const monster_t *monstre = monsterAt(maze, i, j);
+            if (monstre != NULL && maze->labyrinthe[i][j] != 'o'){
+                printf("%c", monstre->type->symbole);
+                continue;
+            }
             switch (maze->labyrinthe[i][j])
             {
             case 0:
@@ -41,6 +47,7 @@ void displayMaze(const maze_t *maze){
         }
         printf("\n");
     }
+    showMonsterLegend(maze);
 }
 
 int menu(void){

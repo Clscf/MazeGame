@@ -1,4 +1,5 @@
 #include "jeu.h"
+#include "monstre.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,14 +54,35 @@ void saveScore(const maze_t *maze, const stats_t *stats){
     fclose(file);
 }
 
+static void findPlayer(const maze_t *maze, int *x, int *y){
+    for (int i = 0; i < maze->hauteur; i++){
+        for (int j = 0; j < maze->largeur; j++){
+            if (maze->labyrinthe[i][j] == 'o' || maze->labyrinthe[i][j] == -1){
+                *x = i;
+                *y = j;
+                return;
+            }
+        }
+    }
+}
+
 void game(maze_t *maze, stats_t *stats){
     char move = '\0';
     int win = -1;
+    resetMonsters(maze);
     displayMaze(maze);
     printf("Score: %d\n", stats->score);
     do {
         scanf(" %c", &move);
         win = movement(move, maze, stats);
+        if (win == 0 && maze->nbMonstres > 0){
+            int joueurX = 0;
+            int joueurY = 1;
+            findPlayer(maze, &joueurX, &joueurY);
+            stats->score -= monsterCollisions(maze, joueurX, joueurY);
+            moveMonsters(maze, joueurX, joueurY);
+            stats->score -= monsterCollisions(maze, joueurX, joueurY);
+        }
         displayMaze(maze);
         printf("Score: %d\n", stats->score);
     } while (win != 1);
@@ -110,7 +132,7 @@ int movement(char move, maze_t *maze, stats_t *stats){
     case 'q':
         if (player[1]-1 >= 0){
             stats->score = stats->score - MOVE;
-            switch (maze->labyrinthe[player[0]][player[1-1]])
+            switch (maze->labyrinthe[player[0]][player[1]-1])
             {
             case 0:
             case '#':

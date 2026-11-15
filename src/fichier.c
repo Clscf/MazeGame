@@ -1,4 +1,5 @@
 #include "fichier.h"
+#include "monstre.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,32 +24,13 @@ char **replaceMaze(const maze_t *maze){
     }
     for (int i = 0; i < maze->hauteur; i++){
         for (int j = 0; j < maze->largeur; j++){
-            switch (maze->labyrinthe[i][j])
-            {
-            case 0:
-                newMaze[i][j] = '#';
-                break;
-            case -1:
-                newMaze[i][j] = 'o';
-                break;
-            case -2:
-                newMaze[i][j] = '-';
-                break;
-            case -3:
-                newMaze[i][j] = '@';
-                break;
-            case -4:
-                newMaze[i][j] = '?';
-                break;
-            case -5:
-                newMaze[i][j] = 'X';
-                break;
-            default:
-                newMaze[i][j] = ' ';
-                break;
-            }
+            newMaze[i][j] = (char) maze->labyrinthe[i][j];
         }
         newMaze[i][maze->largeur] = '\0';
+    }
+    for (int k = 0; k < maze->nbMonstres; k++){
+        const monster_t *monstre = &maze->monstres[k];
+        newMaze[monstre->departX][monstre->departY] = monstre->type->symbole;
     }
     return newMaze;
 }
@@ -172,6 +154,8 @@ maze_t *loadMaze(void){
     if (maze->nom != NULL) {
         strcpy(maze->nom, name);
     }
+
+    loadMonsters(maze);
 
     fclose(file);
     return maze;
